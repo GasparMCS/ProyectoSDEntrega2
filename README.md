@@ -1,33 +1,65 @@
 # ProyectoSDEntrega2
 
-Este repositorio contiene un conjunto de servicios Dockerizados para la captura, almacenamiento y procesamiento de eventos de **Waze Live Map**. Cada componente se encuentra en su propia carpeta con su respectivo `Dockerfile` y dependencias.
+Este repositorio agrupa varios servicios Dockerizados para capturar, almacenar y
+procesar eventos obtenidos desde **Waze Live Map**.
 
-## Servicios principales
+## Prerrequisitos
 
-- **scraper**: utiliza Playwright para obtener eventos en tiempo real del mapa de Waze y los envía al servicio de almacenamiento.
-- **almacenamiento**: API construida con FastAPI que persiste los eventos en MongoDB.
-- **cache**: expone una API que consulta primero en Redis y, en caso de fallo, delega en el servicio de almacenamiento.
-- **filtro**: descarga los eventos desde MongoDB, limpia la información y genera `eventos_filtrados.csv`.
-- **procesamiento**: ejecuta un script de Apache Pig para obtener estadísticas a partir de los eventos filtrados.
-- **generador_trafico**: realiza peticiones al servicio de cache siguiendo diferentes distribuciones para medir su desempeño.
+- Docker
+- Docker Compose
 
-## Ejecución rápida
+## Configuración inicial
 
-1. Ajuste las variables del archivo `.env` para conectar con su instancia de MongoDB.
-2. Construya las imágenes y levante los servicios:
+1. Clone este repositorio.
+2. Cree un archivo `.env` en la raíz y defina las credenciales de MongoDB:
+
+   ```bash
+   MONGO_USER=<usuario>
+   MONGO_PASSWORD=<contraseña>
+   MONGO_CLUSTER=<url_del_cluster>
+   MONGO_DB=<base_de_datos>
+   MONGO_COLLECTION=<colección>
+   ```
+
+## Puesta en marcha
+
+Desde la carpeta del proyecto ejecute:
 
 ```bash
 docker-compose up --build
 ```
 
-El scraper comenzará a enviar eventos y podrá consultarlos a través del servicio de almacenamiento o del cache.
+- `scraper` comenzará a recolectar eventos.
+- `almacenamiento` y `cache` expondrán las APIs en `localhost:8000` y `localhost:8001` respectivamente.
 
-Para lanzar el procesamiento de datos se puede ejecutar el contenedor `procesamiento` de forma aislada:
+## Procesamiento de datos
+
+Para generar estadísticas a partir de los eventos filtrados:
 
 ```bash
 docker-compose run procesamiento
 ```
 
-Los resultados quedarán en la carpeta `procesamiento/resultados/`.
+Los resultados se guardarán en `procesamiento/resultados/`.
 
-Consulte la documentación específica de cada servicio dentro de su directorio para más detalles.
+## Generar tráfico de prueba (opcional)
+
+```bash
+docker-compose run generador
+```
+
+## Visualización con Kibana
+
+Acceda a `http://localhost:5601` para inspeccionar los datos almacenados en
+Elasticsearch (`http://localhost:9200`).
+
+## Estructura del proyecto
+
+- `scraper/`
+- `almacenamiento/`
+- `cache/`
+- `filtro/`
+- `procesamiento/`
+- `generador_trafico/`
+
+Cada servicio contiene su propio `Dockerfile` y dependencias.
