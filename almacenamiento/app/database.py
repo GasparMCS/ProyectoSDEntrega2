@@ -17,3 +17,4 @@ client = MongoClient(
 
 db = client.get_database(os.getenv("MONGO_DB", "eventos"))
 events_collection = db.get_collection(os.getenv("MONGO_COLLECTION", "eventos_scrap"))
+#crudos_collection = db.get_collection("eventos_crudos")

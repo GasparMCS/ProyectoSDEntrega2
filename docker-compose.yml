@@ -18,7 +18,7 @@ services:
       - redis
       - almacenamiento
     environment:
-      - TTL_CACHE=86400
+      - TTL_CACHE=900
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - STORAGE_SERVICE_URL=http://almacenamiento:8000
@@ -64,8 +64,10 @@ services:
       - ./procesamiento/procesamiento.pig:/data/procesamiento.pig
       - ./filtro/output/eventos_filtrados.csv:/data/eventos_filtrados.csv
       - ./procesamiento/resultados:/data/resultados
+      - ./Visualizador/indexador.py:/data/indexador.py
     working_dir: /data
-    command: pig -x local procesamiento.pig
+    command: /bin/bash -c "pig -x local procesamiento.pig "
+    #&& python3 indexador.py
     depends_on:
       - filtro
 
@@ -88,6 +90,20 @@ services:
       - "5601:5601"
     depends_on:
       - elasticsearch
+    
+  generador:
+    build:
+      context: ./generador_trafico
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MIN_IDS=10000
+      - ALMACENAMIENTO_URL=http://almacenamiento:8000/eventos/getall_ids
+    volumes:
+      - ./generador_trafico/app:/app
+    command: >
+      sh -c "sleep 10 && python main.py --duracion 2 --distribucion uniforme"
+    depends_on:
+      - almacenamiento
 
 volumes:
     mongodb_data:

@@ -13,11 +13,20 @@ URL_ALMACENAMIENTO = os.getenv("URL_ALMACENAMIENTO", "http://localhost:8000/even
 eventos_acumulados = []
 uuids_vistos = set()
 
+es = Elasticsearch("http://elasticsearch:9200")
+
 def enviar_evento(evento):
     try:
         response = requests.post(URL_ALMACENAMIENTO, json=evento)
         response.raise_for_status()
         print(f"Evento {evento.get('uuid')} enviado.")
+
+        # Registra en Elasticsearch
+        es.index(index="scraper_metrics", document={
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "evento_id": evento.get('uuid'),
+            "status": "success"
+        })
     except Exception as e:
         print(f"Error al enviar evento {evento.get('uuid')}: {e}")
 

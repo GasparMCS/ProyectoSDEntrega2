@@ -22,4 +22,7 @@ WORKDIR /data
 
 COPY procesamiento.pig ./
 
+RUN apt-get update && apt-get install -y python3 python3-pip
+RUN pip3 install elasticsearch==8.13.0
+
 CMD ["pig", "-x", "local", "procesamiento.pig"]
