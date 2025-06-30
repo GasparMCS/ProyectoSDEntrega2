@@ -52,6 +52,7 @@ docker-compose run generador
 
 Acceda a `http://localhost:5601` para inspeccionar los datos almacenados en
 Elasticsearch (`http://localhost:9200`).
+Ademas de esto para poblar el almacenamiento lo hicimos atravez de un script que esta en `/Visualizador/indexador.py` que toma los datos filtrados (/procesamieto) y los envia a elastic, y luego para visualizar los datos hay que ir a dashboard y crear una vista.
 
 ## Estructura del proyecto
 
@@ -61,5 +62,6 @@ Elasticsearch (`http://localhost:9200`).
 - `filtro/`
 - `procesamiento/`
 - `generador_trafico/`
+- `visualizador/`
 
 Cada servicio contiene su propio `Dockerfile` y dependencias.
